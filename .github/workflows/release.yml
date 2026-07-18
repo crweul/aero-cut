@@ -29,7 +29,7 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Determine version
+      - name: Update version number
         id: ver
         shell: pwsh
         run: |
@@ -45,6 +45,7 @@ jobs:
           $version = "$stamp.$build"
           Write-Host "New version: $version (latest release: '$latest')"
           "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          exit 0
 
       - name: Fetch ffmpeg
         shell: pwsh
