@@ -319,6 +319,11 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
 
     void OnBack(object sender, RoutedEventArgs e)
     {
+        if (System.Windows.MessageBox.Show(
+                "Go back to the start screen? Your current changes will be discarded.",
+                "Aero Cut", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            return;
+
         _timer.Stop();
         _player.Stop();
         SetCropGeometry(null);
