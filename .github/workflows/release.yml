@@ -64,8 +64,8 @@ jobs:
       - name: Create release
         shell: pwsh
         run: |
-          Copy-Item "publish/AeroCut.exe" "publish/Aero Cut.exe"
-          gh release create "${{ steps.ver.outputs.version }}" "publish/Aero Cut.exe" `
+          Copy-Item "publish/AeroCut.exe" "publish/Aero-Cut.exe"
+          gh release create "${{ steps.ver.outputs.version }}" "publish/Aero-Cut.exe" `
             --target "${{ github.sha }}" `
             --title "${{ steps.ver.outputs.version }}" `
             --notes "Automated build ${{ steps.ver.outputs.version }}"

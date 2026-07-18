@@ -8,7 +8,10 @@ namespace AeroCut;
 
 public partial class CropEditor : UserControl
 {
-    const int MinSize = 16;
+    const double MinFraction = 0.1;
+
+    int MinW => _videoW > 0 ? Math.Max(16, (int)(_videoW * MinFraction)) : 16;
+    int MinH => _videoH > 0 ? Math.Max(16, (int)(_videoH * MinFraction)) : 16;
 
     int _videoW;
     int _videoH;
@@ -46,8 +49,8 @@ public partial class CropEditor : UserControl
 
     public void SetCrop(int x, int y, int w, int h)
     {
-        _cw = Math.Clamp(w, MinSize, _videoW);
-        _ch = Math.Clamp(h, MinSize, _videoH);
+        _cw = Math.Clamp(w, MinW, _videoW);
+        _ch = Math.Clamp(h, MinH, _videoH);
         _cx = Math.Clamp(x, 0, _videoW - _cw);
         _cy = Math.Clamp(y, 0, _videoH - _ch);
         Layout();
@@ -117,22 +120,22 @@ public partial class CropEditor : UserControl
 
         if (left)
         {
-            _cx = Math.Clamp(_cx + sdx, 0, rightEdge - MinSize);
+            _cx = Math.Clamp(_cx + sdx, 0, rightEdge - MinW);
             _cw = rightEdge - _cx;
         }
         else
         {
-            _cw = Math.Clamp(_cw + sdx, MinSize, _videoW - _cx);
+            _cw = Math.Clamp(_cw + sdx, MinW, _videoW - _cx);
         }
 
         if (top)
         {
-            _cy = Math.Clamp(_cy + sdy, 0, bottomEdge - MinSize);
+            _cy = Math.Clamp(_cy + sdy, 0, bottomEdge - MinH);
             _ch = bottomEdge - _cy;
         }
         else
         {
-            _ch = Math.Clamp(_ch + sdy, MinSize, _videoH - _cy);
+            _ch = Math.Clamp(_ch + sdy, MinH, _videoH - _cy);
         }
 
         Layout();
