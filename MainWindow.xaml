@@ -224,7 +224,7 @@
                         </StackPanel>
                         <TextBlock Margin="0,10,0,0" TextWrapping="Wrap"
                                    Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                                   Text="Drag the box or its corners to set the crop. The video preview updates live. Export applies the crop." />
+                                   Text="Drag the box or its corners to set the crop region. The crop is applied when you export." />
                     </StackPanel>
 
                     <StackPanel x:Name="AudioPanel" Visibility="Collapsed">
@@ -249,10 +249,9 @@
             </Grid>
         </Grid>
 
-        <Grid x:Name="ExportOverlay" Grid.ColumnSpan="2" Visibility="Collapsed" Background="#99000000">
-            <Border MaxWidth="440" VerticalAlignment="Center" HorizontalAlignment="Center"
+        <Grid x:Name="ExportOverlay" Grid.ColumnSpan="2" Visibility="Collapsed" Background="#B3000000">
+            <Border x:Name="ExportCard" MaxWidth="440" VerticalAlignment="Center" HorizontalAlignment="Center"
                     Padding="24" CornerRadius="10"
-                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
                     BorderThickness="1" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
                 <StackPanel>
                     <TextBlock Text="Export as New" FontSize="20" FontWeight="SemiBold" />
@@ -288,10 +287,9 @@
             </Border>
         </Grid>
 
-        <Grid x:Name="BusyOverlay" Grid.ColumnSpan="2" Visibility="Collapsed" Background="#B0000000">
-            <Border MaxWidth="380" VerticalAlignment="Center" HorizontalAlignment="Center"
+        <Grid x:Name="BusyOverlay" Grid.ColumnSpan="2" Visibility="Collapsed" Background="#C0000000">
+            <Border x:Name="BusyCard" MaxWidth="380" VerticalAlignment="Center" HorizontalAlignment="Center"
                     Padding="24" CornerRadius="10"
-                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
                     BorderThickness="1" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
                 <StackPanel>
                     <TextBlock x:Name="BusyText" Text="Exporting" FontSize="18" FontWeight="SemiBold" />

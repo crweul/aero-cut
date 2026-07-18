@@ -67,6 +67,7 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
         SystemThemeWatcher.Watch(this, Wpf.Ui.Controls.WindowBackdropType.Mica, false);
         ApplicationThemeManager.Changed += OnThemeChanged;
         ApplyWindowsAccent();
+        ApplyDialogBackground();
         Video.MediaPlayer = _player;
 
         _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(200) };
@@ -95,7 +96,22 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
         return http;
     }
 
-    void OnThemeChanged(ApplicationTheme currentTheme, System.Windows.Media.Color systemAccent) => ApplyWindowsAccent();
+    void OnThemeChanged(ApplicationTheme currentTheme, System.Windows.Media.Color systemAccent)
+    {
+        ApplyWindowsAccent();
+        ApplyDialogBackground();
+    }
+
+    void ApplyDialogBackground()
+    {
+        bool dark = ApplicationThemeManager.GetAppTheme() == ApplicationTheme.Dark;
+        var brush = new System.Windows.Media.SolidColorBrush(dark
+            ? System.Windows.Media.Color.FromRgb(0x2B, 0x2B, 0x2B)
+            : System.Windows.Media.Color.FromRgb(0xF9, 0xF9, 0xF9));
+        brush.Freeze();
+        ExportCard.Background = brush;
+        BusyCard.Background = brush;
+    }
 
     void ApplyWindowsAccent()
     {
@@ -141,7 +157,6 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
         _lengthReady = false;
         _waveReady = false;
         _seekTarget = -1;
-        SetCropGeometry(null);
 
         AppTitleBar.Title = Path.GetFileName(path);
         Title = "Aero Cut  —  " + Path.GetFileName(path);
@@ -326,7 +341,6 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
 
         _timer.Stop();
         _player.Stop();
-        SetCropGeometry(null);
         _path = null;
         _lengthReady = false;
         _seekTarget = -1;
@@ -511,13 +525,6 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
         _cropW = Crop.CropW;
         _cropH = Crop.CropH;
         _cropActive = _cropX != 0 || _cropY != 0 || _cropW != _videoW || _cropH != _videoH;
-        SetCropGeometry(_cropActive ? $"{_cropW}x{_cropH}+{_cropX}+{_cropY}" : null);
-    }
-
-    void SetCropGeometry(string? geometry)
-    {
-        try { _player.CropGeometry = geometry; }
-        catch { }
     }
 
     void OnCropReset(object sender, RoutedEventArgs e) => Crop.SetCrop(0, 0, _videoW, _videoH);
