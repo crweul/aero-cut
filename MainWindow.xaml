@@ -1,0 +1,307 @@
+<ui:FluentWindow x:Class="AeroCut.MainWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                 xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
+                 xmlns:local="clr-namespace:AeroCut"
+                 Title="Aero Cut"
+                 Width="1180" Height="780" MinWidth="900" MinHeight="600"
+                 WindowStartupLocation="CenterScreen"
+                 ExtendsContentIntoTitleBar="True"
+                 WindowBackdropType="Mica"
+                 WindowCornerPreference="Round"
+                 AllowDrop="True"
+                 DragOver="OnDragOver"
+                 Drop="OnDrop"
+                 Closing="OnClosing">
+
+    <ui:FluentWindow.Resources>
+        <Style x:Key="BrandButton" TargetType="Button">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border CornerRadius="6" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                            <Grid>
+                                <Border x:Name="Tint" CornerRadius="6" Background="White" Opacity="0" />
+                                <ContentPresenter Margin="{TemplateBinding Padding}"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Tint" Property="Opacity" Value="0.16" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Tint" Property="Opacity" Value="0.30" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </ui:FluentWindow.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Border x:Name="Sidebar" Grid.Column="0" Width="140" Visibility="Collapsed"
+                WindowChrome.IsHitTestVisibleInChrome="True"
+                Background="{DynamicResource ControlFillColorDefaultBrush}"
+                BorderThickness="0,0,1,0"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+            <Grid Margin="10,12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0">
+                    <ui:Button x:Name="NavBack" Appearance="Secondary" Click="OnBack" Content="&#x2190;  Back"
+                               Margin="0,0,0,12" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+                    <ui:Button x:Name="NavCut" Appearance="Secondary" Click="OnNavCut" Margin="0,0,0,8"
+                               HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+                        <StackPanel>
+                            <TextBlock Text="&#xE78A;" FontFamily="Segoe Fluent Icons" FontSize="20"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Cut" Margin="0,4,0,0" HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </ui:Button>
+                    <ui:Button x:Name="NavCrop" Appearance="Secondary" Click="OnNavCrop" Margin="0,0,0,8"
+                               HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+                        <StackPanel>
+                            <TextBlock Text="&#xE7A8;" FontFamily="Segoe Fluent Icons" FontSize="20"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Crop" Margin="0,4,0,0" HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </ui:Button>
+                    <ui:Button x:Name="NavAudio" Appearance="Secondary" Click="OnNavAudio"
+                               HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+                        <StackPanel>
+                            <TextBlock Text="&#xE767;" FontFamily="Segoe Fluent Icons" FontSize="20"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Audio" Margin="0,4,0,0" HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </ui:Button>
+                </StackPanel>
+                <StackPanel Grid.Row="1" Margin="0,12,0,4">
+                    <Button x:Name="SponsorButton" Click="OnSponsor" Background="#FFDB61A2" Margin="0,0,0,8"
+                            Visibility="Collapsed"
+                            HorizontalAlignment="Stretch" Style="{StaticResource BrandButton}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Width="15" Height="15" Stretch="Uniform" Fill="White" VerticalAlignment="Center"
+                                  Data="m8 14.25.345.666a.75.75 0 0 1-.69 0l-.008-.004-.018-.01a7.152 7.152 0 0 1-.31-.17 22.055 22.055 0 0 1-3.434-2.414C2.045 10.731 0 8.35 0 5.5 0 2.836 2.086 1 4.25 1 5.797 1 7.153 1.802 8 3.02 8.847 1.802 10.203 1 11.75 1 13.914 1 16 2.836 16 5.5c0 2.85-2.045 5.231-3.885 6.818a22.066 22.066 0 0 1-3.744 2.584l-.018.01-.006.003h-.002ZM4.25 2.5c-1.336 0-2.75 1.164-2.75 3 0 2.15 1.58 4.144 3.365 5.682A20.58 20.58 0 0 0 8 13.393a20.58 20.58 0 0 0 3.135-2.211C12.92 9.644 14.5 7.65 14.5 5.5c0-1.836-1.414-3-2.75-3-1.373 0-2.609.986-3.029 2.456a.749.749 0 0 1-1.442 0C6.859 3.486 5.623 2.5 4.25 2.5Z" />
+                            <TextBlock Text="Sponsor" Margin="8,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="GitHubButton" Click="OnGitHub" Background="#FF6E5494" Margin="0,0,0,14"
+                            Visibility="Collapsed"
+                            HorizontalAlignment="Stretch" Style="{StaticResource BrandButton}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Width="15" Height="15" Stretch="Uniform" Fill="White" VerticalAlignment="Center"
+                                  Data="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z" />
+                            <TextBlock Text="GitHub" Margin="8,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="Aero Cut" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                        <TextBlock x:Name="VersionText" Text="1.0" HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                    <ui:Button x:Name="UpgradeButton" Appearance="Secondary" Click="OnUpgrade" Visibility="Collapsed"
+                               Margin="0,10,0,0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE896;" FontFamily="Segoe Fluent Icons" VerticalAlignment="Center" />
+                            <TextBlock Text="Upgrade" Margin="8,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </ui:Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <ui:TitleBar x:Name="AppTitleBar" Grid.Row="0" Title="Aero Cut" Height="66"
+                         Background="{DynamicResource LayerFillColorDefaultBrush}">
+                <ui:TitleBar.Resources>
+                    <Style TargetType="{x:Type ui:TitleBarButton}"
+                           BasedOn="{StaticResource {x:Type ui:TitleBarButton}}">
+                        <Setter Property="Height" Value="66" />
+                        <Setter Property="VerticalAlignment" Value="Stretch" />
+                    </Style>
+                </ui:TitleBar.Resources>
+                <ui:TitleBar.TrailingContent>
+                    <Border x:Name="ToolbarRight" CornerRadius="8" Padding="4" Margin="0,0,8,0"
+                            VerticalAlignment="Center" Visibility="Collapsed"
+                            Background="{DynamicResource ControlFillColorDefaultBrush}"
+                            BorderThickness="1" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:Button Content="Export as New" Appearance="Primary" Click="OnExportAsNew" Padding="10,4" />
+                            <ui:Button Content="Update Original" Margin="4,0,0,0" Click="OnUpdateOriginal" Padding="10,4" />
+                        </StackPanel>
+                    </Border>
+                </ui:TitleBar.TrailingContent>
+            </ui:TitleBar>
+
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Margin="16,8,16,0">
+                    <Border x:Name="OpenPrompt" Background="Transparent" Cursor="Hand"
+                            CornerRadius="8" MouseLeftButtonUp="OnOpenClick">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE714;" FontFamily="Segoe Fluent Icons" FontSize="48"
+                                       HorizontalAlignment="Center"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Text="Press here to open a video or drag a video into the application window."
+                                       Margin="0,18,0,0" FontSize="15" TextWrapping="Wrap" MaxWidth="440"
+                                       TextAlignment="Center"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border x:Name="VideoHost" Visibility="Collapsed" Background="Black" CornerRadius="8">
+                        <vlc:VideoView x:Name="Video" />
+                    </Border>
+
+                    <local:CropEditor x:Name="Crop" Visibility="Collapsed" />
+                </Grid>
+
+                <StackPanel x:Name="Transport" Grid.Row="1" Orientation="Horizontal"
+                            Margin="16,10,16,0" Visibility="Collapsed">
+                    <ui:Button x:Name="PlayButton" Content="Play" Width="96" Click="OnPlayPause" />
+                    <TextBlock x:Name="TimeText" VerticalAlignment="Center" Margin="14,0,0,0"
+                               Text="00:00:00.000 / 00:00:00.000"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+
+                <Grid Grid.Row="2" Margin="16,10,16,16">
+                    <StackPanel x:Name="CutPanel" Visibility="Collapsed">
+                        <local:TrimTimeline x:Name="Timeline" Margin="0,2,0,6" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Start" VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <ui:TextBox x:Name="StartBox" Grid.Column="1" Width="132" Text="00:00:00.000"
+                                        KeyDown="OnStartKey" LostFocus="OnStartCommit" />
+                            <TextBlock Grid.Column="3" Text="End" VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <ui:TextBox x:Name="EndBox" Grid.Column="4" Width="132" Text="00:00:00.000"
+                                        KeyDown="OnEndKey" LostFocus="OnEndCommit" />
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel x:Name="CropPanel" Visibility="Collapsed">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="X" VerticalAlignment="Center" Margin="0,0,6,0" />
+                            <ui:TextBox x:Name="CropXBox" Width="78" KeyDown="OnCropBoxKey" LostFocus="OnCropBoxCommit" />
+                            <TextBlock Text="Y" VerticalAlignment="Center" Margin="14,0,6,0" />
+                            <ui:TextBox x:Name="CropYBox" Width="78" KeyDown="OnCropBoxKey" LostFocus="OnCropBoxCommit" />
+                            <TextBlock Text="W" VerticalAlignment="Center" Margin="14,0,6,0" />
+                            <ui:TextBox x:Name="CropWBox" Width="78" KeyDown="OnCropBoxKey" LostFocus="OnCropBoxCommit" />
+                            <TextBlock Text="H" VerticalAlignment="Center" Margin="14,0,6,0" />
+                            <ui:TextBox x:Name="CropHBox" Width="78" KeyDown="OnCropBoxKey" LostFocus="OnCropBoxCommit" />
+                            <Border Width="1" Margin="18,2,18,2" VerticalAlignment="Stretch"
+                                    Background="{DynamicResource TextFillColorPrimaryBrush}" />
+                            <ui:Button Content="Reset" Click="OnCropReset" />
+                        </StackPanel>
+                        <TextBlock Margin="0,10,0,0" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                   Text="Drag the box or its corners to set the crop. The video preview updates live. Export applies the crop." />
+                    </StackPanel>
+
+                    <StackPanel x:Name="AudioPanel" Visibility="Collapsed">
+                        <ui:ToggleSwitch x:Name="UseKeyframes" Content="Use keyframes" HorizontalAlignment="Left"
+                                         Checked="OnUseKeyframes" Unchecked="OnUseKeyframes" />
+                        <local:AudioTrack x:Name="Audio" Height="150" Margin="0,10,0,0" />
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0" VerticalAlignment="Center">
+                            <TextBlock x:Name="KfTimeLabel" Text="Time" VerticalAlignment="Center" Margin="0,0,6,0" />
+                            <ui:TextBox x:Name="KfTimeBox" Width="120" Text="00:00:00.000"
+                                        KeyDown="OnKfBoxKey" LostFocus="OnKfBoxCommit" />
+                            <TextBlock Text="Volume" VerticalAlignment="Center" Margin="14,0,6,0" />
+                            <ui:TextBox x:Name="KfVolBox" Width="66" Text="100%"
+                                        KeyDown="OnKfBoxKey" LostFocus="OnKfBoxCommit" />
+                            <Border x:Name="AudioDivider" Width="1" Margin="18,2,18,2" VerticalAlignment="Stretch"
+                                    Background="{DynamicResource TextFillColorPrimaryBrush}" />
+                            <ui:Button x:Name="AddKfButton" Content="Add keyframe" Click="OnAddKeyframe" />
+                            <ui:Button x:Name="RemoveKfButton" Content="Remove" Margin="8,0,0,0"
+                                       Click="OnRemoveKeyframe" IsEnabled="False" />
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <Grid x:Name="ExportOverlay" Grid.ColumnSpan="2" Visibility="Collapsed" Background="#99000000">
+            <Border MaxWidth="440" VerticalAlignment="Center" HorizontalAlignment="Center"
+                    Padding="24" CornerRadius="10"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderThickness="1" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+                <StackPanel>
+                    <TextBlock Text="Export as New" FontSize="20" FontWeight="SemiBold" />
+                    <TextBlock Text="Format" Margin="0,16,0,4" />
+                    <ComboBox x:Name="FormatCombo" HorizontalAlignment="Stretch">
+                        <ComboBoxItem Content="MP4 (.mp4)" Tag=".mp4" />
+                        <ComboBoxItem Content="MOV (.mov)" Tag=".mov" />
+                        <ComboBoxItem Content="MKV (.mkv)" Tag=".mkv" />
+                        <ComboBoxItem Content="WebM (.webm)" Tag=".webm" />
+                        <ComboBoxItem Content="AVI (.avi)" Tag=".avi" />
+                    </ComboBox>
+                    <ui:ToggleSwitch x:Name="CompressToggle" Content="Compress" Margin="0,18,0,0" HorizontalAlignment="Left" />
+                    <TextBlock Text="Compression level" Margin="0,16,0,0"
+                               IsEnabled="{Binding IsChecked, ElementName=CompressToggle}" />
+                    <Grid Margin="0,4,0,0" IsEnabled="{Binding IsChecked, ElementName=CompressToggle}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Slider x:Name="CompressSlider" Minimum="0" Maximum="100" Value="45"
+                                VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="1" VerticalAlignment="Center" Width="34" TextAlignment="Right"
+                                   Text="{Binding Value, ElementName=CompressSlider, StringFormat={}{0:0}}" />
+                    </Grid>
+                    <TextBlock Text="Off keeps the original quality. Higher means smaller file, lower quality."
+                               Margin="0,8,0,20" TextWrapping="Wrap" FontSize="12"
+                               Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <ui:Button Content="Cancel" Click="OnExportCancel" />
+                        <ui:Button Content="Export" Appearance="Primary" Margin="8,0,0,0" Click="OnExportConfirm" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid x:Name="BusyOverlay" Grid.ColumnSpan="2" Visibility="Collapsed" Background="#B0000000">
+            <Border MaxWidth="380" VerticalAlignment="Center" HorizontalAlignment="Center"
+                    Padding="24" CornerRadius="10"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderThickness="1" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+                <StackPanel>
+                    <TextBlock x:Name="BusyText" Text="Exporting" FontSize="18" FontWeight="SemiBold" />
+                    <ProgressBar x:Name="ExportProgress" Minimum="0" Maximum="100" Height="6"
+                                 Margin="0,16,0,6" Width="300" />
+                    <TextBlock x:Name="ProgressText" Text="0%"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <ui:Button Content="Cancel" Margin="0,18,0,0" HorizontalAlignment="Right" Click="OnCancelExport" />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</ui:FluentWindow>

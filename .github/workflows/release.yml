@@ -1,0 +1,69 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.cs'
+      - '**.xaml'
+      - '**.csproj'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Determine version
+        id: ver
+        shell: pwsh
+        run: |
+          $now = [System.DateTime]::UtcNow
+          $stamp = "$($now.Year).$($now.DayOfYear)"
+          $latest = gh api "repos/${{ github.repository }}/releases/latest" --jq ".tag_name" 2>$null
+          if ($LASTEXITCODE -ne 0) { $latest = "" }
+          $build = 0
+          if ($latest -match '^\d+\.\d+\.\d+$') {
+            $p = $latest.Split('.')
+            if ("$($p[0]).$($p[1])" -eq $stamp) { $build = [int]$p[2] + 1 } else { $build = 0 }
+          }
+          $version = "$stamp.$build"
+          Write-Host "New version: $version (latest release: '$latest')"
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Fetch ffmpeg
+        shell: pwsh
+        run: |
+          if (-not (Test-Path ffmpeg/ffmpeg.exe)) {
+            New-Item -ItemType Directory -Force ffmpeg | Out-Null
+            Invoke-WebRequest -Uri "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip" -OutFile ffmpeg.zip
+            Expand-Archive ffmpeg.zip -DestinationPath ffmpeg-tmp
+            $exe = Get-ChildItem ffmpeg-tmp -Recurse -Filter ffmpeg.exe | Select-Object -First 1
+            Copy-Item $exe.FullName ffmpeg/ffmpeg.exe
+          }
+
+      - name: Publish
+        run: dotnet publish -c Release -o publish -p:Version=${{ steps.ver.outputs.version }} -p:AssemblyVersion=${{ steps.ver.outputs.version }} -p:FileVersion=${{ steps.ver.outputs.version }}
+
+      - name: Create release
+        shell: pwsh
+        run: |
+          gh release create "${{ steps.ver.outputs.version }}" "publish/AeroCut.exe" `
+            --target "${{ github.sha }}" `
+            --title "${{ steps.ver.outputs.version }}" `
+            --notes "Automated build ${{ steps.ver.outputs.version }}"
